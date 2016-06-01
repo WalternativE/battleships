@@ -1,0 +1,10 @@
+<ion-navbar *navbar>
+    <button menuToggle>
+        <ion-icon name="menu"></ion-icon>
+    </button>
+    <ion-title>Game Board</ion-title>
+</ion-navbar>
+
+<ion-content>
+    <canvas #gamecanvas (click)="handleCanvasClick($event)" id="zeCanvas"></canvas>
+</ion-content>

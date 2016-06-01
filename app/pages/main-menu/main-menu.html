@@ -1,0 +1,18 @@
+<ion-navbar *navbar>
+  <button menuToggle>
+    <ion-icon name="menu"></ion-icon>
+  </button>
+  <ion-title>Main Menu</ion-title>
+</ion-navbar>
+
+<ion-content padding>
+
+  <div class="button-box">
+    <div *ngIf="isGameRunning()">
+      <button block (click)="resumeRunningGame()">Resume Game</button>
+    </div>
+    <button block (click)="startSinglePlayerGame()">New Single Player Game</button>
+    <button block (click)="startMultiPlayerGame()">New Multi Player Game</button>
+  </div>
+
+</ion-content>
