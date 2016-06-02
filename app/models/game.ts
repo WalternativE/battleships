@@ -1,6 +1,7 @@
 import {Board} from './board';
 import {RenderInformation} from './renderinformation';
 
+import {CanvasPosition} from '../pages/game-board/game-board';
 
 export class Game {
     
@@ -26,6 +27,10 @@ export class Game {
     
     renderPlayerBoard(renderInfo: RenderInformation) {
         this._playerOneBoard.renderShips(renderInfo);
+    }
+    
+    handleMovingGesture(position: CanvasPosition, event: any) {
+        this._playerOneBoard.handleMovingGesture(position, event);
     }
 }
 

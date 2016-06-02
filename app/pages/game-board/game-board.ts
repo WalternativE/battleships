@@ -144,7 +144,9 @@ export class GameBoard {
         }
     }
 
-    handleDragMove(dimensions: CanvasDimensions, event) {        
+    handleDragMove(dimensions: CanvasDimensions, event) {
+        console.log(event);
+             
         let context = this._ctx;
         // calculate the angle of the drag direction
         let dragAngle = 180 * Math.atan2(event.dx, event.dy) / Math.PI;
@@ -154,9 +156,8 @@ export class GameBoard {
             + (30 + Math.min(event.speed / 1000, 1) * 50) + '%)';
 
         let position = this.getPositionOnCanvas(event);
-        // draw squares
-        context.fillRect(position.x - dimensions.width / 2, position.y - dimensions.height / 2,
-            dimensions.width, dimensions.height);
+        
+        this._gameStateService.handleMovingGesture(position, event);
     }
 
     // for infos of this function there is a link to that
@@ -179,7 +180,7 @@ interface CanvasDimensions {
     height: number;
 }
 
-interface CanvasPosition {
+export interface CanvasPosition {
     x: number,
     y: number
 }

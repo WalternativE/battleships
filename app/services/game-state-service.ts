@@ -3,6 +3,7 @@ import {Injectable} from '@angular/core';
 import {Game, Mode} from '../models/game';
 import {RenderInformation} from '../models/renderinformation';
 
+import {CanvasPosition} from '../pages/game-board/game-board';
 
 @Injectable()
 export class GameStateService {
@@ -28,6 +29,12 @@ export class GameStateService {
     renderBoards(renderInfo: RenderInformation) {
         if (this._currentGame) {
             this._currentGame.renderPlayerBoard(renderInfo);
+        }
+    }
+    
+    handleMovingGesture(position: CanvasPosition, event: any) {
+        if (this._currentGame) {
+            this._currentGame.handleMovingGesture(position, event);
         }
     }
 } 
