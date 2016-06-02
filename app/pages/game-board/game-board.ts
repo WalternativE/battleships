@@ -6,7 +6,10 @@ import {GameStateService} from '../../services/game-state-service';
 
 import {RenderInformation} from '../../models/renderinformation';
 
+import {BoardUtil, CanvasDimensions} from '../../util/board-util';
+
 declare var interact: any;
+
 
 @Page({
     templateUrl: 'build/pages/game-board/game-board.html'
@@ -16,13 +19,11 @@ export class GameBoard {
     private _columnCount;
     private _rowCount;
 
-    private _lastColumnXVal;
-
     @ViewChild('gamecanvas') gameCanvas: any;
 
     private _ctx: CanvasRenderingContext2D;
-    private _dimensions;
-    
+    private _dimensions: CanvasDimensions;
+
     private _animationId: number;
     private _shouldAnimationStop: boolean;
 
@@ -33,7 +34,7 @@ export class GameBoard {
 
     onPageWillEnter() {
         let canvas: HTMLCanvasElement = this.gameCanvas.nativeElement;
-        this._dimensions = this.computeCanvasDimensions();
+        this._dimensions = BoardUtil.computeCanvasDimensions();
 
         canvas.width = this._dimensions.width;
         canvas.height = this._dimensions.height;
@@ -41,35 +42,36 @@ export class GameBoard {
         this._ctx = canvas.getContext('2d');
 
         this.configureInteract(canvas);
-        
+
         this._shouldAnimationStop = false;
         this.startWindowAnimation();
     }
-    
+
     onPageDidLeave() {
         this._shouldAnimationStop = true;
         this.stopWindowAnimation();
     }
-    
+
     startWindowAnimation() {
         window.requestAnimationFrame(id => this.renderBoard(id));
     }
-    
+
     stopWindowAnimation() {
         window.cancelAnimationFrame(this._animationId);
     }
-    
+
     renderBoard(id) {
         this._animationId = id;
-        
+
         this._ctx.clearRect(0, 0, this._dimensions.width, this._dimensions.height);
-        this.renderFieldLines();
+        BoardUtil.renderFieldLines(this._dimensions, this._ctx,
+            this._rowCount, this._columnCount);
         this._gameStateService.renderBoards({
             context: this._ctx,
             height: this._dimensions.height,
             width: this._dimensions.width
         });
-        
+
         if (this._shouldAnimationStop) {
             this.stopWindowAnimation();
         } else {
@@ -78,7 +80,7 @@ export class GameBoard {
     }
 
     configureInteract(canvas: HTMLCanvasElement) {
-        let dimensions  = this.computeCanvasDimensions();
+        let dimensions = BoardUtil.computeCanvasDimensions();
         dimensions.width = (dimensions.width / this._columnCount);
         dimensions.height = (dimensions.height / this._rowCount);
 
@@ -106,47 +108,9 @@ export class GameBoard {
             });
     }
 
-    computeCanvasDimensions(): CanvasDimensions {
-        return {
-            'width': window.innerWidth,
-            'height': window.innerHeight - 200
-        }
-    }
-
-    renderFieldLines() {
-        this.renderColumns();
-        this.renderRows();
-    }
-
-    renderColumns() {
-        let columnDistance = this._dimensions.width / this._columnCount;
-
-        for (let i = 0; i <= this._dimensions.width ; i += columnDistance) {
-            this._ctx.beginPath();
-            this._ctx.moveTo(i, 0);
-            this._ctx.lineTo(i, this._dimensions.height);
-            this._ctx.stroke();
-            this._ctx.closePath();
-
-            this._lastColumnXVal = i;
-        }
-    }
-
-    renderRows() {
-        let rowDistance = this._dimensions.height / this._rowCount;
-
-        for (let i = 0; i <= this._dimensions.height; i += rowDistance) {
-            this._ctx.beginPath();
-            this._ctx.moveTo(0, i);
-            this._ctx.lineTo(this._lastColumnXVal, i);
-            this._ctx.stroke();
-            this._ctx.closePath();
-        }
-    }
-
     handleDragMove(dimensions: CanvasDimensions, event) {
         console.log(event);
-             
+
         let context = this._ctx;
         // calculate the angle of the drag direction
         let dragAngle = 180 * Math.atan2(event.dx, event.dy) / Math.PI;
@@ -155,32 +119,20 @@ export class GameBoard {
         context.fillStyle = 'hsl(' + dragAngle + ', 86%, '
             + (30 + Math.min(event.speed / 1000, 1) * 50) + '%)';
 
-        let position = this.getPositionOnCanvas(event);
-        
+        let position = BoardUtil.getPositionOnCanvas(event, this.gameCanvas);
+
         this._gameStateService.handleMovingGesture(position, event);
     }
 
-    // for infos of this function there is a link to that
-    // http://www.html5canvastutorials.com/advanced/html5-canvas-mouse-coordinates/   
-    getPositionOnCanvas(evt: MouseEvent): CanvasPosition {
-        let canvas: HTMLCanvasElement = this.gameCanvas.nativeElement;
-        let rect = canvas.getBoundingClientRect();
-
-        return {
-            x: Math.round(
-                (evt.clientX - rect.left) / (rect.right - rect.left) * canvas.width),
-            y: Math.round(
-                (evt.clientY - rect.top) / (rect.bottom - rect.top) * canvas.height)
-        };
+    isStillAdjusting(): boolean {
+        return this._gameStateService.isStillAdjusting()
     }
-}
 
-interface CanvasDimensions {
-    width: number;
-    height: number;
-}
+    startBattlePhase() {
+        this._gameStateService.startBattlePhase();
+    }
 
-export interface CanvasPosition {
-    x: number,
-    y: number
+    goToAttackBoard() {
+
+    }
 }

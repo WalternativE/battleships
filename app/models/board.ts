@@ -1,6 +1,7 @@
 import {Ship, ShipClass, HeadPosition, ShipOrientation} from './ship';
 import {RenderInformation} from './renderinformation';
-import {CanvasPosition} from '../pages/game-board/game-board';
+
+import {CanvasPosition} from '../util/board-util';
 
 export class Board {
 
@@ -90,7 +91,7 @@ export class Board {
             let thresholdFactor = 30;
 
             if (event.velocityX > 1 * thresholdFactor) {
-                if ((ship.headPosition.col + ship.size) < 10)
+                if ((ship.headPosition.col + ship.size) < this._columnCount)
                     ship.headPosition.col += 1;
             } else if (event.velocityX < -1 * thresholdFactor) {
                 if (ship.headPosition.col > 0)
@@ -98,7 +99,7 @@ export class Board {
             }
 
             if (event.velocityY > 1 * thresholdFactor) {
-                if ((ship.headPosition.row + 1) < 10)
+                if ((ship.headPosition.row + 1) < this._rowCount)
                     ship.headPosition.row += 1;
             } else if (event.velocityY < -1 * thresholdFactor) {
                 if (ship.headPosition.row > 0)

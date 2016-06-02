@@ -1,0 +1,11 @@
+<ion-navbar *navbar>
+    <button menuToggle>
+        <ion-icon name="menu"></ion-icon>
+    </button>
+    <ion-title>Attack Board</ion-title>
+</ion-navbar>
+
+<ion-content>
+    <canvas #attackcanvas (click)="handleCanvasClick($event)"></canvas>
+    <button (click)="backToGameBoard()" block>Back To Game Board</button>
+</ion-content>

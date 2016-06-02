@@ -3,7 +3,7 @@ import {Injectable} from '@angular/core';
 import {Game, Mode} from '../models/game';
 import {RenderInformation} from '../models/renderinformation';
 
-import {CanvasPosition} from '../pages/game-board/game-board';
+import {CanvasPosition} from '../util/board-util';
 
 @Injectable()
 export class GameStateService {
@@ -37,4 +37,18 @@ export class GameStateService {
             this._currentGame.handleMovingGesture(position, event);
         }
     }
-} 
+    
+    isStillAdjusting(): boolean {
+        if (this._currentGame) {
+            return this._currentGame.isStillAdjusting();
+        } else {
+            return true;
+        }
+    }
+    
+    startBattlePhase() {
+        if (this._currentGame) {
+            this._currentGame.startBattlePhase();
+        }
+    }
+}

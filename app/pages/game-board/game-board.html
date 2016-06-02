@@ -7,4 +7,6 @@
 
 <ion-content>
     <canvas #gamecanvas (click)="handleCanvasClick($event)" id="zeCanvas"></canvas>
+    <button block (click)="startBattlePhase()" *ngIf="isStillAdjusting()">Start Battle Phase</button>
+    <button block (click)="goToAttackBoard()" *ngIf="!isStillAdjusting()">Go To Attack Board</button>
 </ion-content>
