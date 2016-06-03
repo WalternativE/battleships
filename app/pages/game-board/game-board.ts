@@ -1,4 +1,4 @@
-import {Page, Toast} from 'ionic-angular';
+import {Page, Toast, Nav, MenuController} from 'ionic-angular';
 
 import {ViewChild, Inject} from '@angular/core';
 
@@ -8,7 +8,10 @@ import {RenderInformation} from '../../models/renderinformation';
 
 import {BoardUtil, CanvasDimensions} from '../../util/board-util';
 
-declare var interact: any;
+import {AttackBoard} from '../attack-board/attack-board';
+
+import * as interact from 'interact.js';
+// declare var interact: any;
 
 
 @Page({
@@ -27,9 +30,13 @@ export class GameBoard {
     private _animationId: number;
     private _shouldAnimationStop: boolean;
 
-    constructor(private _gameStateService: GameStateService) {
+    constructor(private _gameStateService: GameStateService,
+        private _nav: Nav,
+        private _menu: MenuController) {
         this._columnCount = 10;
         this._rowCount = 10;
+        
+        _menu.swipeEnable(false);
     }
 
     onPageWillEnter() {

@@ -1,4 +1,4 @@
-import {Page, Toast} from 'ionic-angular';
+import {Page, Toast, MenuController, Nav} from 'ionic-angular';
 
 import {ViewChild, Inject} from '@angular/core';
 
@@ -25,9 +25,13 @@ export class AttackBoard {
     private _animationId: number;
     private _shouldAnimationStop: boolean;
 
-    constructor(private _gameStateService: GameStateService) {
+    constructor(private _gameStateService: GameStateService,
+        private _menu: MenuController,
+        private _nav: Nav) {
         this._columnCount = 10;
         this._rowCount = 10;
+        
+        _menu.swipeEnable(false);
     }
     
     onPageWillEnter() {

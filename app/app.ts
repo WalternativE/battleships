@@ -1,6 +1,6 @@
 import {ViewChild} from '@angular/core';
 
-import {App, Platform, MenuController, Nav} from 'ionic-angular';
+import {App, Platform, MenuController, Nav, Config} from 'ionic-angular';
 import {StatusBar} from 'ionic-native';
 
 import {MainMenu} from './pages/main-menu/main-menu';
@@ -23,8 +23,11 @@ class MyApp {
 
   constructor(
     private platform: Platform,
-    private menu: MenuController
+    private menu: MenuController,
+    private config: Config
   ) {
+    // TODO config here
+    
     this.initializeApp();
 
     // set our app's pages
