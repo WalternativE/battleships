@@ -30,6 +30,10 @@ export class Game {
     renderPlayerBoard(renderInfo: RenderInformation) {
         this._playerOneBoard.renderShips(renderInfo);
     }
+    
+    renderAttackBoard(renderInfo: RenderInformation) {
+        this._playerTwoBoard.renderAttackMarks(renderInfo);
+    }
 
     handleMovingGesture(position: CanvasPosition, event: any) {
         if (this.isStillAdjusting()) {
@@ -39,6 +43,10 @@ export class Game {
 
     startBattlePhase() {
         this._phase = Phase.Battle;
+        
+        this._playerOneBoard.updateHitMapWithShipPositions();
+        this._playerTwoBoard.updateHitMapWithShipPositions();
+        
         console.log('Battle Phase started');
     }
 

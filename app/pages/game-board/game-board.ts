@@ -11,7 +11,6 @@ import {BoardUtil, CanvasDimensions} from '../../util/board-util';
 import {AttackBoard} from '../attack-board/attack-board';
 
 import * as interact from 'interact.js';
-// declare var interact: any;
 
 
 @Page({
@@ -73,7 +72,8 @@ export class GameBoard {
         this._ctx.clearRect(0, 0, this._dimensions.width, this._dimensions.height);
         BoardUtil.renderFieldLines(this._dimensions, this._ctx,
             this._rowCount, this._columnCount);
-        this._gameStateService.renderBoards({
+            
+        this._gameStateService.renderVisiblePlayerBoard({
             context: this._ctx,
             height: this._dimensions.height,
             width: this._dimensions.width
@@ -116,13 +116,12 @@ export class GameBoard {
     }
 
     handleDragMove(dimensions: CanvasDimensions, event) {
-        console.log(event);
-
         let context = this._ctx;
         // calculate the angle of the drag direction
         let dragAngle = 180 * Math.atan2(event.dx, event.dy) / Math.PI;
 
         // set color based on drag angle and speed
+        // not useful but nice to watch
         context.fillStyle = 'hsl(' + dragAngle + ', 86%, '
             + (30 + Math.min(event.speed / 1000, 1) * 50) + '%)';
 
@@ -140,6 +139,6 @@ export class GameBoard {
     }
 
     goToAttackBoard() {
-
+        this._nav.push(AttackBoard);
     }
 }

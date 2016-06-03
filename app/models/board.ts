@@ -13,16 +13,14 @@ export class Board {
         { clazz: ShipClass.Submarine, piecesOnBoard: 2 }
     ]
 
-    private _cells: Array<Array<number>>;
+    private _cells: Array<Array<HitMapFieldStates>>;
     private _ships: Array<Ship>;
 
-    private _renderInfo: RenderInformation;
+    private _playerBoardRenderInfo: RenderInformation;
 
     constructor(private _columnCount = 10, private _rowCount = 10) {
         this.primeBoardCells();
         this.primeShipsOnBoard();
-
-        console.log(this);
     }
 
     primeBoardCells() {
@@ -32,7 +30,7 @@ export class Board {
             this._cells.push(new Array());
 
             for (let j = 0; j < this._rowCount; j++) {
-                this._cells[i].push(0);
+                this._cells[i].push(HitMapFieldStates.None);
             }
         }
     }
@@ -56,14 +54,14 @@ export class Board {
         // need this for other computation - I just assume that the renderInfo wills stay
         // as it is...doesn't factor in resize or portrait/landscape switches
         // if this becomes a requirment the way of optaining the dimensions has to be changed
-        if (!this._renderInfo) {
-            this._renderInfo = renderInfo;
+        if (!this._playerBoardRenderInfo) {
+            this._playerBoardRenderInfo = renderInfo;
         }
 
-        this._ships.forEach(ship => {
-            let xFieldDistance = renderInfo.width / 10;
-            let yFieldDistance = renderInfo.height / 10;
+        let xFieldDistance = renderInfo.width / 10;
+        let yFieldDistance = renderInfo.height / 10;
 
+        this._ships.forEach(ship => {
             let xDrawPos = ship.headPosition.col * xFieldDistance;
             let yDrawPos = ship.headPosition.row * yFieldDistance;
 
@@ -80,6 +78,53 @@ export class Board {
 
             renderInfo.context.fillRect(xDrawPos, yDrawPos, drawWidth, drawHeight);
         });
+    }
+
+    renderAttackMarks(renderInfo: RenderInformation) {
+        // same problem as in renderShips - Portrait Mode it is!
+        let xFieldDistance = renderInfo.width / 10;
+        let yFieldDistance = renderInfo.height / 10;
+
+        this._cells.forEach((row, rowIndex) => {
+            row.forEach((cell, colIndex) => {
+                if (cell === HitMapFieldStates.Miss) {
+                    let xAndYPos = this.computeXAndYPos(colIndex, rowIndex,
+                        xFieldDistance, yFieldDistance);
+
+                    this.drawMiss(renderInfo, xAndYPos, xFieldDistance, yFieldDistance);
+                } else if (cell === HitMapFieldStates.Hit) {                    
+                    let xAndYPos = this.computeXAndYPos(colIndex, rowIndex,
+                        xFieldDistance, yFieldDistance);
+
+                    this.drawHit(renderInfo, xAndYPos, xFieldDistance, yFieldDistance);
+                }
+            });
+        });
+    }
+
+    drawMiss(renderInfo: RenderInformation,
+        xAndYPos: XAndYPos, xFieldDistance: number, yFieldDistance: number) {
+        this.drawAttackMark('blue', renderInfo, xAndYPos, xFieldDistance, yFieldDistance);
+    }
+
+    drawHit(renderInfo: RenderInformation,
+        xAndYPos: XAndYPos, xFieldDistance: number, yFieldDistance: number) {
+        this.drawAttackMark('red', renderInfo, xAndYPos, xFieldDistance, yFieldDistance);
+    }
+
+    drawAttackMark(fillStyle: string, renderInfo: RenderInformation,
+        xAndYPos: XAndYPos, xFieldDistance: number, yFieldDistance: number) {
+        renderInfo.context.fillStyle = fillStyle;
+        renderInfo.context.fillRect(xAndYPos.xPos, xAndYPos.yPos,
+            xFieldDistance, yFieldDistance);
+    }
+
+    computeXAndYPos(colIndex: number, rowIndex: number,
+        xFieldDistance: number, yFieldDistance: number): XAndYPos {
+        return {
+            xPos: colIndex * xFieldDistance,
+            yPos: rowIndex * yFieldDistance
+        }
     }
 
     handleMovingGesture(position: CanvasPosition, event: any) {
@@ -121,8 +166,8 @@ export class Board {
     }
 
     isThisShipHit(ship: Ship, position: CanvasPosition): boolean {
-        let xFieldDistance = this._renderInfo.width / 10;
-        let yFieldDistance = this._renderInfo.height / 10;
+        let xFieldDistance = this._playerBoardRenderInfo.width / 10;
+        let yFieldDistance = this._playerBoardRenderInfo.height / 10;
 
         let maxXToBeHit: number;
         let maxYToBeHit: number;
@@ -138,15 +183,53 @@ export class Board {
 
         if (position.x >= minXToBeHit && position.x <= maxXToBeHit
             && position.y >= minYToBeHit && position.y <= maxYToBeHit) {
-            console.log('ship is hit!');
             return true;
         } else {
             return false;
         }
+    }
+
+    // TODO Orientation Logic hast to be implemented
+    updateHitMapWithShipPositions() {
+        this._ships.forEach(ship => {
+            let startRowIndex = ship.headPosition.row;
+            let stopRowIndex;
+            if (ship.orientation === ShipOrientation.Vertical) {
+                stopRowIndex = startRowIndex + ship.size - 1;
+            } else {
+                stopRowIndex = startRowIndex;
+            }
+
+            let startColIndex = ship.headPosition.col;
+            let stopColIndex;
+            if (ship.orientation == ShipOrientation.Horizontal) {
+                stopColIndex = startColIndex + ship.size - 1;
+            } else {
+                stopColIndex = startColIndex;
+            }
+
+            for (let i = startRowIndex; i <= stopRowIndex; i++) {
+                for (let j = startColIndex; j <= stopColIndex; j++) {
+                    this._cells[i][j] = HitMapFieldStates.Ship;
+                }
+            }
+        });
     }
 }
 
 interface ShipConfiguration {
     clazz: ShipClass,
     piecesOnBoard: number
+}
+
+enum HitMapFieldStates {
+    None,
+    Ship,
+    Hit,
+    Miss
+}
+
+interface XAndYPos {
+    xPos: number;
+    yPos: number;
 }

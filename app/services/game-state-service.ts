@@ -9,9 +9,6 @@ import {CanvasPosition} from '../util/board-util';
 export class GameStateService {
     
     private _currentGame: Game;
-
-    constructor() {
-    }
     
     startNewSinglePlayerGame() {
         this._currentGame = new Game(Mode.Single);
@@ -26,9 +23,15 @@ export class GameStateService {
         return this._currentGame != null && !this._currentGame.isFinished;
     }
     
-    renderBoards(renderInfo: RenderInformation) {
+    renderVisiblePlayerBoard(renderInfo: RenderInformation) {
         if (this._currentGame) {
             this._currentGame.renderPlayerBoard(renderInfo);
+        }
+    }
+    
+    renderAttackBoard(renderInfo: RenderInformation) {
+        if (this._currentGame) {
+            this._currentGame.renderAttackBoard(renderInfo);
         }
     }
     
